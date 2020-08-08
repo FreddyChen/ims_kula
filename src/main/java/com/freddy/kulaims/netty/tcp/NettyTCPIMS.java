@@ -1,6 +1,13 @@
 package com.freddy.kulaims.netty.tcp;
 
+import android.content.Context;
+
+import com.freddy.kulaims.bean.IMSMsg;
+import com.freddy.kulaims.config.IMSOptions;
 import com.freddy.kulaims.interf.IMSInterface;
+import com.freddy.kulaims.listener.IMSConnectStatusListener;
+import com.freddy.kulaims.listener.IMSMsgReceivedListener;
+import com.freddy.kulaims.listener.IMSMsgSentStatusListener;
 
 /**
  * @author FreddyChen
@@ -19,11 +26,53 @@ public class NettyTCPIMS implements IMSInterface {
         return SingletonHolder.INSTANCE;
     }
 
+
     private static class SingletonHolder {
         private static final NettyTCPIMS INSTANCE = new NettyTCPIMS();
     }
 
     @Override
-    public void init() {
+    public IMSInterface init(Context context, IMSOptions options, IMSConnectStatusListener connectStatusListener, IMSMsgReceivedListener msgReceivedListener) {
+        return this;
+    }
+
+    @Override
+    public void connect() {
+        this.reconnect(true);
+    }
+
+    @Override
+    public void reconnect(boolean isFirstConnect) {
+
+    }
+
+    @Override
+    public void disconnect() {
+
+    }
+
+    @Override
+    public void sendMsg(IMSMsg msg) {
+
+    }
+
+    @Override
+    public void sendMsg(IMSMsg msg, IMSMsgSentStatusListener listener) {
+
+    }
+
+    @Override
+    public void sendMsg(IMSMsg msg, boolean isJoinResendManager) {
+
+    }
+
+    @Override
+    public void sendMsg(IMSMsg msg, IMSMsgSentStatusListener listener, boolean isJoinResendManager) {
+
+    }
+
+    @Override
+    public void release() {
+
     }
 }
