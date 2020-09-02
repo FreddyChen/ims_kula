@@ -1,5 +1,6 @@
-package com.freddy.kulaims.netty.websocket;
+package com.freddy.kulaims.mina.tcp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.freddy.kulaims.bean.IMSMsg;
@@ -9,34 +10,28 @@ import com.freddy.kulaims.listener.IMSConnectStatusListener;
 import com.freddy.kulaims.listener.IMSMsgReceivedListener;
 import com.freddy.kulaims.listener.IMSMsgSentStatusListener;
 
-/**
- * @author FreddyChen
- * @name Netty WebSocket IM Service
- * @date 2020/05/21 16:33
- * @email chenshichao@outlook.com
- * @github https://github.com/FreddyChen
- * @desc 基于Netty实现的WebSocket协议客户端
- */
-public class NettyWebSocketIMS implements IMSInterface {
+public class MinaTCPIMS implements IMSInterface {
 
-    private NettyWebSocketIMS() { }
+    private MinaTCPIMS() {
+    }
 
-    public static NettyWebSocketIMS getInstance() {
+    public static MinaTCPIMS getInstance() {
         return SingletonHolder.INSTANCE;
     }
 
     private static final class SingletonHolder {
-        private static final NettyWebSocketIMS INSTANCE = new NettyWebSocketIMS();
+        @SuppressLint("StaticFieldLeak")
+        private static final MinaTCPIMS INSTANCE = new MinaTCPIMS();
     }
 
     @Override
     public boolean init(Context context, IMSOptions options, IMSConnectStatusListener connectStatusListener, IMSMsgReceivedListener msgReceivedListener) {
-        return true;
+        return false;
     }
 
     @Override
     public void connect() {
-        this.reconnect(true);
+
     }
 
     @Override

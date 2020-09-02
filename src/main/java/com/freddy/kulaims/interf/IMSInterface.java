@@ -17,6 +17,10 @@ import com.freddy.kulaims.listener.IMSMsgSentStatusListener;
  * @desc 不同的客户端协议实现此接口即可，例：
  * {@link com.freddy.kulaims.netty.tcp.NettyTCPIMS}
  * {@link com.freddy.kulaims.netty.websocket.NettyWebSocketIMS}
+ * {@link com.freddy.kulaims.nio.tcp.NioTCPIMS}
+ * {@link com.freddy.kulaims.nio.websocket.NioWebSocketIMS}
+ * {@link com.freddy.kulaims.mina.tcp.MinaTCPIMS}
+ * {@link com.freddy.kulaims.mina.websocket.MinaWebSocketIMS}
  */
 public interface IMSInterface {
 
@@ -28,7 +32,7 @@ public interface IMSInterface {
      * @param connectStatusListener IMS连接状态监听
      * @param msgReceivedListener   IMS消息接收监听
      */
-    IMSInterface init(Context context, IMSOptions options, IMSConnectStatusListener connectStatusListener, IMSMsgReceivedListener msgReceivedListener);
+    boolean init(Context context, IMSOptions options, IMSConnectStatusListener connectStatusListener, IMSMsgReceivedListener msgReceivedListener);
 
     /**
      * 连接
@@ -41,11 +45,6 @@ public interface IMSInterface {
      * @param isFirstConnect 是否首次连接
      */
     void reconnect(boolean isFirstConnect);
-
-    /**
-     * 断开连接
-     */
-    void disconnect();
 
     /**
      * 发送消息
@@ -77,7 +76,7 @@ public interface IMSInterface {
      * 重载
      *
      * @param msg
-     * @param listener 消息发送状态监听器
+     * @param listener            消息发送状态监听器
      * @param isJoinResendManager 是否加入消息重发管理器
      */
     void sendMsg(IMSMsg msg, IMSMsgSentStatusListener listener, boolean isJoinResendManager);

@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class IMSOptions {
 
+    private ImplementationMode implementationMode;// 实现方式
     private CommunicationProtocol communicationProtocol;// 通信协议
     private TransportProtocol transportProtocol;// 传输协议
     private int connectTimeout;// 连接超时时间，单位：毫秒
@@ -19,8 +20,12 @@ public class IMSOptions {
     private int resendCount;// 消息最大重发次数
     private List<String> serverList;// 服务器地址列表
 
+    private IMSOptions() {
+    }
+
     private IMSOptions(Builder builder) {
         if (builder == null) return;
+        this.implementationMode = builder.implementationMode;
         this.communicationProtocol = builder.communicationProtocol;
         this.transportProtocol = builder.transportProtocol;
         this.connectTimeout = builder.connectTimeout;
@@ -32,6 +37,10 @@ public class IMSOptions {
         this.resendInterval = builder.resendInterval;
         this.resendCount = builder.resendCount;
         this.serverList = builder.serverList;
+    }
+
+    public ImplementationMode getImplementationMode() {
+        return implementationMode;
     }
 
     public CommunicationProtocol getCommunicationProtocol() {
@@ -78,8 +87,26 @@ public class IMSOptions {
         return serverList;
     }
 
-    public static class Builder {
+    @Override
+    public String toString() {
+        return "IMSOptions\n{" +
+                "\n\timplementationMode=" + implementationMode +
+                "\n\tcommunicationProtocol=" + communicationProtocol +
+                "\n\ttransportProtocol=" + transportProtocol +
+                "\n\tconnectTimeout=" + connectTimeout +
+                "\n\treconnectInterval=" + reconnectInterval +
+                "\n\treconnectCount=" + reconnectCount +
+                "\n\tforegroundHeartbeatInterval=" + foregroundHeartbeatInterval +
+                "\n\tbackgroundHeartbeatInterval=" + backgroundHeartbeatInterval +
+                "\n\tautoResend=" + autoResend +
+                "\n\tresendInterval=" + resendInterval +
+                "\n\tresendCount=" + resendCount +
+                "\n\tserverList=" + serverList +
+                "\n}";
+    }
 
+    public static class Builder {
+        private ImplementationMode implementationMode;// 实现方式
         private CommunicationProtocol communicationProtocol;// 通信协议
         private TransportProtocol transportProtocol;// 传输协议
         private int connectTimeout;// 连接超时时间，单位：毫秒
@@ -93,6 +120,7 @@ public class IMSOptions {
         private List<String> serverList;// 服务器地址列表
 
         public Builder() {
+            this.implementationMode = ImplementationMode.Netty;
             this.connectTimeout = IMSConfig.CONNECT_TIMEOUT;
             this.reconnectInterval = IMSConfig.RECONNECT_INTERVAL;
             this.reconnectCount = IMSConfig.RECONNECT_COUNT;
@@ -101,6 +129,11 @@ public class IMSOptions {
             this.autoResend = IMSConfig.AUTO_RESEND;
             this.resendInterval = IMSConfig.RESEND_INTERVAL;
             this.resendCount = IMSConfig.RESEND_COUNT;
+        }
+
+        public Builder setImplementationMode(ImplementationMode implementationMode) {
+            this.implementationMode = implementationMode;
+            return this;
         }
 
         public Builder setCommunicationProtocol(CommunicationProtocol communicationProtocol) {
