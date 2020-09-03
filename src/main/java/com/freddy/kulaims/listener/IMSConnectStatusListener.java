@@ -11,5 +11,5 @@ public interface IMSConnectStatusListener {
     void onUnconnected();
     void onConnecting();
     void onConnected();
-    void onConnectFailed();
+    void onConnectFailed(int errCode, String errMsg);
 }

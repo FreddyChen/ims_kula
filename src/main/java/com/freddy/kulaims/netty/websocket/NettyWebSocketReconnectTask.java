@@ -1,22 +1,23 @@
-package com.freddy.kulaims.netty.tcp;
+package com.freddy.kulaims.netty.websocket;
 
 import android.util.Log;
 
 import com.freddy.kulaims.config.IMSConnectStatus;
 import com.freddy.kulaims.config.IMSOptions;
 
+import java.net.URI;
 import java.util.List;
 
 import io.netty.channel.Channel;
 import io.netty.util.internal.StringUtil;
 
-public class NettyTCPReconnectTask implements Runnable {
+public class NettyWebSocketReconnectTask implements Runnable {
 
-    private static final String TAG = NettyTCPReconnectTask.class.getSimpleName();
-    private NettyTCPIMS ims;
+    private static final String TAG = NettyWebSocketReconnectTask.class.getSimpleName();
+    private NettyWebSocketIMS ims;
     private IMSOptions mIMSOptions;
 
-    NettyTCPReconnectTask(NettyTCPIMS ims) {
+    NettyWebSocketReconnectTask(NettyWebSocketIMS ims) {
         this.ims = ims;
         this.mIMSOptions = ims.getIMSOptions();
     }
@@ -79,14 +80,40 @@ public class NettyTCPReconnectTask implements Runnable {
                 return IMSConnectStatus.ConnectFailed_ServerEmpty;
             }
 
-            String[] params = null;
+            URI uri;
             try {
-                params = server.split(" ");
-            } catch (Exception e) {
+                uri = URI.create(server);
+            }catch (IllegalArgumentException e) {
                 e.printStackTrace();
+                if(i == serverList.size() - 1) {
+                    Log.w(TAG, String.format("【%1$s】连接失败，地址不合法", server));
+                    return IMSConnectStatus.ConnectFailed_ServerIllegitimate;
+                }else {
+                    Log.w(TAG, String.format("【%1$s】连接失败，地址不合法，正在等待重连，当前重连延时时长：%2$d", server, mIMSOptions.getReconnectInterval()));
+                    Log.w(TAG, "=========================================================================================");
+                    try {
+                        Thread.sleep(mIMSOptions.getReconnectInterval());
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    continue;
+                }
             }
-            if (params == null || params.length < 2) {
-                return IMSConnectStatus.ConnectFailed_ServerIllegitimate;
+
+            if(!"ws".equals(uri.getScheme())) {
+                if(i == serverList.size() - 1) {
+                    Log.w(TAG, String.format("【%1$s】连接失败，地址不合法", server));
+                    return IMSConnectStatus.ConnectFailed_ServerIllegitimate;
+                }else {
+                    Log.w(TAG, String.format("【%1$s】连接失败，地址不合法，正在等待重连，当前重连延时时长：%2$d", server, mIMSOptions.getReconnectInterval()));
+                    Log.w(TAG, "=========================================================================================");
+                    try {
+                        Thread.sleep(mIMSOptions.getReconnectInterval());
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    continue;
+                }
             }
 
             if(i == 0) {
@@ -104,8 +131,8 @@ public class NettyTCPReconnectTask implements Runnable {
 
                 Log.d(TAG, String.format("正在进行【%1$s】的第%2$d次连接", server, j + 1));
                 try {
-                    String host = params[0];
-                    int port = Integer.parseInt(params[1]);
+                    String host = uri.getHost();
+                    int port = uri.getPort();
                     Channel channel = toServer(host, port);
                     if (channel != null && channel.isOpen() && channel.isActive() && channel.isRegistered() && channel.isWritable()) {
                         ims.setChannel(channel);
