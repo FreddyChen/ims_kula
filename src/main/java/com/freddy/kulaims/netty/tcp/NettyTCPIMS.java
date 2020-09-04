@@ -17,6 +17,7 @@ import com.freddy.kulaims.utils.ExecutorServiceFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -71,7 +72,7 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
      * 网络可用回调
      */
     @Override
-    public void onAvailable() {
+    public void onNetworkAvailable() {
         this.isNetworkAvailable = true;
         if(!isExecConnect) {
             return;
@@ -86,7 +87,7 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
      * 网络不可用回调
      */
     @Override
-    public void onUnavailable() {
+    public void onNetworkUnavailable() {
         this.isNetworkAvailable = false;
         if(!isExecConnect) {
             return;
@@ -96,6 +97,8 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
         this.isReconnecting = false;
         // 网络断开时，销毁重连线程组（停止重连任务）
         executors.destroyBossLoopGroup();
+        // 回调ims连接状态
+        callbackIMSConnectStatus(IMSConnectStatus.ConnectFailed_NetworkUnavailable);
         // 关闭channel
         closeChannel();
         // 关闭bootstrap
@@ -160,9 +163,9 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
     @Override
     public void reconnect(boolean isFirstConnect) {
         if (!isFirstConnect) {
-            // 非首次重连，代表之前已经进行过重连，延时一段时间再去重连
+            // 非首次连接，代表之前已经进行过重连，延时一段时间再去重连
             try {
-                Log.w(TAG, String.format("非首次重连，延时%1$dms再次尝试重连", mIMSOptions.getReconnectInterval()));
+                Log.w(TAG, String.format("非首次连接，延时%1$dms再次尝试重连", mIMSOptions.getReconnectInterval()));
                 Thread.sleep(mIMSOptions.getReconnectInterval());
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -172,6 +175,10 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
         if (!isClosed && !isReconnecting) {
             synchronized (this) {
                 if (!isClosed && !isReconnecting) {
+                    if(imsConnectStatus == IMSConnectStatus.Connected) {
+                        Log.w(TAG, "已连接，无需重连");
+                        return;
+                    }
                     // 标识正在进行重连
                     setReconnecting(true);
                     // 关闭channel
@@ -277,6 +284,7 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
     private void closeChannel() {
         try {
             if (channel != null) {
+                removeHandler(NettyTCPReadHandler.class.getSimpleName());
                 try {
                     channel.close();
                 } catch (Exception e) {
@@ -290,6 +298,18 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
             }
         }finally {
             channel = null;
+        }
+    }
+
+    private void removeHandler(String name) {
+        try {
+            ChannelPipeline pipeline = channel.pipeline();
+            if(pipeline.get(name) != null) {
+                pipeline.remove(name);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "移除handler失败：" + name);
         }
     }
 
@@ -314,6 +334,7 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
      * @param imsConnectStatus
      */
     void callbackIMSConnectStatus(IMSConnectStatus imsConnectStatus) {
+        Log.d(TAG, "回调ims连接状态：" + imsConnectStatus);
         if(this.imsConnectStatus == imsConnectStatus) {
             Log.w(TAG, "连接状态与上一次相同，无需执行任何操作");
             return;

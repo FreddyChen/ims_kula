@@ -118,15 +118,15 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
 
         for (INetworkStateChangedObserver observer : mObservers) {
             if (available) {
-                observer.onAvailable();
+                observer.onNetworkAvailable();
             } else {
-                observer.onUnavailable();
+                observer.onNetworkUnavailable();
             }
         }
     }
 
     public interface INetworkStateChangedObserver {
-        void onAvailable();
-        void onUnavailable();
+        void onNetworkAvailable();
+        void onNetworkUnavailable();
     }
 }

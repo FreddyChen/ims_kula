@@ -13,6 +13,6 @@ public class NettyTCPChannelInitializerHandler extends ChannelInitializer<Channe
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
-        ch.pipeline().addLast(new NettyTCPReadHandler(ims));
+        ch.pipeline().addLast(NettyTCPReadHandler.class.getSimpleName(), new NettyTCPReadHandler(ims));
     }
 }
