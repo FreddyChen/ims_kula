@@ -23,36 +23,16 @@ public class ExecutorServiceFactory {
      * 初始化boss线程池
      */
     public synchronized void initBossLoopGroup() {
-        initBossLoopGroup(1);
-    }
-
-    /**
-     * 初始化boss线程池
-     * 重载
-     *
-     * @param size 线程池大小
-     */
-    public synchronized void initBossLoopGroup(int size) {
         destroyBossLoopGroup();
-        bossPool = Executors.newFixedThreadPool(size);
+        bossPool = Executors.newSingleThreadExecutor();
     }
 
     /**
      * 初始化work线程池
      */
     public synchronized void initWorkLoopGroup() {
-        initWorkLoopGroup(1);
-    }
-
-    /**
-     * 初始化work线程池
-     * 重载
-     *
-     * @param size 线程池大小
-     */
-    public synchronized void initWorkLoopGroup(int size) {
         destroyWorkLoopGroup();
-        workPool = Executors.newFixedThreadPool(size);
+        workPool = Executors.newSingleThreadExecutor();
     }
 
     /**

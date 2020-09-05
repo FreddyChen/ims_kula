@@ -67,12 +67,13 @@ public class NettyTCPReconnectTask implements Runnable {
      */
     private IMSConnectStatus connect() {
         if (ims.isClosed()) return IMSConnectStatus.ConnectFailed_IMSClosed;
-        ims.initBootstrap();
+        if(!ims.isNetworkAvailable()) return IMSConnectStatus.ConnectFailed_NetworkUnavailable;
         List<String> serverList = mIMSOptions.getServerList();
         if (serverList == null || serverList.isEmpty()) {
             return IMSConnectStatus.ConnectFailed_ServerListEmpty;
         }
 
+        ims.initBootstrap();
         for (int i = 0; i < serverList.size(); i++) {
             String server = serverList.get(i);
             if (StringUtil.isNullOrEmpty(server)) {
