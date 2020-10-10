@@ -84,4 +84,9 @@ public class IMSKit {
 
         ims.connect();
     }
+
+    public void disconnect() {
+        if(ims == null) return;
+        ims.release();
+    }
 }
