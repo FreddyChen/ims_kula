@@ -14,7 +14,10 @@ import java.util.List;
 
 public class NetworkManager extends ConnectivityManager.NetworkCallback {
 
+    private static final String TAG = NetworkManager.class.getSimpleName();
     private List<INetworkStateChangedObserver> mObservers = new ArrayList<>();
+    private NetworkType networkType;
+    private Network availableNetwork;
 
     private NetworkManager() {
     }
@@ -27,24 +30,23 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
         private static final NetworkManager INSTANCE = new NetworkManager();
     }
 
-    private NetworkType networkType;
-
     @Override
     public void onAvailable(@NonNull Network network) {
-        super.onAvailable(network);
-        Log.d("NetworkManager", "onAvailable()");
+        Log.d(TAG, "onAvailable() network = " + network);
+        this.availableNetwork = network;
         notifyObservers(true);
     }
 
     @Override
     public void onLost(@NonNull Network network) {
-        Log.d("NetworkManager", "onLost()");
-        notifyObservers(false);
+        Log.d(TAG, "onLost() network = " + network);
+        if(network == availableNetwork) {
+            notifyObservers(false);
+        }
     }
 
     @Override
     public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
-        Log.d("NetworkManager", "onCapabilitiesChanged()");
         if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
             if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                 updateNetworkType(NetworkType.Wifi);
@@ -61,6 +63,7 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
             return;
         }
 
+        Log.d(TAG, "updateNetworkType() type = " + type);
         this.networkType = type;
     }
 

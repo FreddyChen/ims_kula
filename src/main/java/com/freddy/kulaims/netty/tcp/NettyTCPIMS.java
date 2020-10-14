@@ -53,8 +53,6 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
     private ExecutorServiceFactory executors;
     // 网络是否可用标识
     private boolean isNetworkAvailable;
-    // 是否执行过连接，如果未执行过，在onAvailable()的时候，无需进行重连
-    private boolean isExecConnect = false;
 
     private NettyTCPIMS() {
     }
@@ -74,13 +72,10 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
     @Override
     public void onNetworkAvailable() {
         this.isNetworkAvailable = true;
-        if(!isExecConnect) {
-            return;
-        }
         Log.d(TAG, "网络可用，启动ims");
         this.isClosed = false;
         // 网络连接时，自动重连ims
-        this.reconnect(false);
+        this.reconnect(true);
     }
 
     /**
@@ -89,9 +84,6 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
     @Override
     public void onNetworkUnavailable() {
         this.isNetworkAvailable = false;
-        if(!isExecConnect) {
-            return;
-        }
         Log.d(TAG, "网络不可用，关闭ims");
         this.isClosed = true;
         this.isReconnecting = false;
@@ -149,10 +141,9 @@ public class NettyTCPIMS implements IMSInterface, NetworkManager.INetworkStateCh
     @Override
     public void connect() {
         if(!initialized) {
-            Log.w(TAG, "IMS初始化失败，请查看日志");
+            Log.w(TAG, "IMS初始化失败，initialized is false");
             return;
         }
-        isExecConnect = true;// 标识已执行过连接
         this.reconnect(true);
     }
 
