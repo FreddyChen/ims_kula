@@ -10,6 +10,8 @@ import com.freddy.kulaims.listener.IMSConnectStatusListener;
 import com.freddy.kulaims.listener.IMSMsgReceivedListener;
 import com.freddy.kulaims.listener.IMSMsgSentStatusListener;
 
+import io.netty.channel.Channel;
+
 public class MinaTCPIMS implements IMSInterface {
 
     private MinaTCPIMS() {
@@ -56,7 +58,6 @@ public class MinaTCPIMS implements IMSInterface {
 
     @Override
     public void sendMsg(IMSMsg msg, IMSMsgSentStatusListener listener, boolean isJoinResendManager) {
-
     }
 
     @Override

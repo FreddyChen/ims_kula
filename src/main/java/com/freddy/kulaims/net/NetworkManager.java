@@ -17,7 +17,6 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
     private static final String TAG = NetworkManager.class.getSimpleName();
     private List<INetworkStateChangedObserver> mObservers = new ArrayList<>();
     private NetworkType networkType;
-    private Network availableNetwork;
 
     private NetworkManager() {
     }
@@ -33,16 +32,13 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
     @Override
     public void onAvailable(@NonNull Network network) {
         Log.d(TAG, "onAvailable() network = " + network);
-        this.availableNetwork = network;
         notifyObservers(true);
     }
 
     @Override
     public void onLost(@NonNull Network network) {
         Log.d(TAG, "onLost() network = " + network);
-        if(network == availableNetwork) {
-            notifyObservers(false);
-        }
+        notifyObservers(false);
     }
 
     @Override
@@ -130,6 +126,7 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
 
     public interface INetworkStateChangedObserver {
         void onNetworkAvailable();
+
         void onNetworkUnavailable();
     }
 }
